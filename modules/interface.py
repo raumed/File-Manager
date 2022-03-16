@@ -1,4 +1,6 @@
+from cProfile import label
 from tkinter import filedialog
+import tkinter.font as tkFont
 from tkinter import messagebox
 from tkinter import ttk
 from tkinter import *
@@ -15,10 +17,12 @@ def interface():
     root = Tk(className ='File manager', screenName = 'File manager', baseName = 'File manager')
     root.iconbitmap(os.path.abspath('./assets/condominio.ico'))
     root.title('Generador de recibos de condominio')
+    root.geometry("800x700+50+50")
     frameMenu = Frame(root, width = 800, height = 600)
     frameA = Frame(root, width = 800, height = 600)
     frameB = Frame(root, width = 800, height = 600)
     frameMenu.pack()
+
 
     progbar = ttk.Progressbar(root, orient=HORIZONTAL, length=300, mode='determinate', value=0)
 
@@ -60,7 +64,7 @@ def interface():
     textFieldB1.place(x = 120, y = 50, width=500)
     textFieldB2 = Entry(frameB)
     textFieldB2.place(x = 120, y = 150, width=500)
-    textfieldB3 = Entry(frameB, show = '*')
+    textfieldB3 = Entry(frameB) #, show = '*')
     textfieldB3.place(x = 120, y = 250, width=500)
     textFieldB4 = Entry(frameB)
     textFieldB4.place(x = 120, y = 350, width=500)
@@ -73,7 +77,7 @@ def interface():
 
     # -------------------------------Definicion de los eventos-------------------------------
     def fileSearch():
-        root.filename =  filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("xlsx files","*.xlsx"),("all files","*.*")))
+        root.filename =  filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("Plantillas de excel","*.xlsm"), ("Archivos de excel","*.xlsx"),("Todos los archivos","*.*") ))
         textFieldA1.delete(0, 'end')
         textFieldA1.insert(0, root.filename)
 
@@ -122,8 +126,10 @@ def interface():
                         n += 1
                     recivers.close()
                     if(messagebox.askokcancel(title='Advertencia', message='Esta a punto de enviar '+str(n)+' correos ¿Desea continuar?')):
+                        labelProgbar = Label(frameB, text = 'Enviando...  '+str(progbar['value'])+'%', font = 'Arial')
+                        labelProgbar.place(x=330, y = 580)
                         progbar.pack(pady = 20)
-                        Thread(target = sendEmails, name='Email sender', args=(textFieldB2.get(),textfieldB3.get(), textFieldB4.get(), messageB1.get('1.0', END), textFieldB1.get(), mails, n, progbar)).start()
+                        Thread(target = sendEmails, name='Email sender', args=(textFieldB2.get(),textfieldB3.get(), textFieldB4.get(), messageB1.get('1.0', END), textFieldB1.get(), mails, n, progbar, labelProgbar, buttonB1)).start()
                 except:
                     messagebox.showerror(title = 'Error', message ='No se pudo encontrar a los destinatarios')
                     print("Error:", sys.exc_info()[0])
@@ -155,6 +161,9 @@ def interface():
 
 
     # -------------------------------Definicion de los botones-------------------------------
+    # Fuente de las descripciones de los botones
+    fontStyle = tkFont.Font(family="Arial", size=8)
+
     # Rutas usadas en varios frames
     routeG1 = os.path.abspath('./assets/back.png')
     photoG1 = PhotoImage(file = routeG1)
@@ -168,9 +177,14 @@ def interface():
 
     buttonA1 = Button(frameA, image = photoG2, compound = LEFT, command = fileSearch)
     buttonA1.place(x = 640, y = 90, width = 40, height = 40)
+    labelButtonA1 = Label(frameA, text = 'Buscar carpeta', font = fontStyle)
+    labelButtonA1.place(x=620, y = 135)
+
 
     buttonA2 = Button(frameA, image = photoG2, compound = LEFT, command = routeSearchA)
     buttonA2.place(x = 640, y = 190, width = 40, height = 40)
+    labelButtonA2 = Label(frameA, text = 'Buscar carpeta', font = fontStyle)
+    labelButtonA2.place(x=620, y = 235)
 
 
     routeA2 = os.path.abspath('./assets/save.png')
@@ -178,6 +192,8 @@ def interface():
     photoA2 = photoA2.subsample(18, 18)
     buttonA3 = Button(frameA, image = photoA2, compound = LEFT, command = saveFiles)
     buttonA3.place(x = 400, y = 300, width = 40, height = 40)
+    labelButtonA3 = Label(frameA, text = 'Guardar archivos como pdf', font = fontStyle)
+    labelButtonA3.place(x=348, y = 345)
 
 
     buttonA4 = Button(frameA, image = photoG1, compound = LEFT, command = showFrameMenu)
@@ -189,9 +205,13 @@ def interface():
     photoB1 = photoB1.subsample(18, 18)
     buttonB1 = Button(frameB, image = photoB1, compound = LEFT, command = sendMessages)
     buttonB1.place(x = 640, y = 490, width = 40, height = 40)
+    labelButtonB2 = Label(frameB, text = 'Enviar', font = fontStyle)
+    labelButtonB2.place(x=642, y = 535)
 
     buttonB2 = Button(frameB, image = photoG2, compound = LEFT, command = routeSearchB)
     buttonB2.place(x = 640, y = 40, width = 40, height = 40)
+    labelButtonB2 = Label(frameB, text = 'Buscar carpeta', font = fontStyle)
+    labelButtonB2.place(x=620, y = 85)
 
     buttonB3 = Button(frameB, image = photoG1, compound = LEFT, command = showFrameMenu)
     buttonB3.place(x = 0, y = 0, width = 60, height = 60)

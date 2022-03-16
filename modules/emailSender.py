@@ -8,8 +8,10 @@ from email import encoders
 
 from tkinter import messagebox
 
-def sendEmails(sender, password, subject, body, route, emails, amount, progbar):
+def sendEmails(sender, password, subject, body, route, emails, amount, progbar, labelProgbar, button):
     try:
+        #Desactiva el boton de envios
+        button["state"] = "disabled"
         i = 1
         path, dirs, files = next(os.walk(route))
         file_count = len(files)
@@ -29,7 +31,7 @@ def sendEmails(sender, password, subject, body, route, emails, amount, progbar):
             messageFile.attach(MIMEText(body, 'plain'))
             fileRoute = route + '/'+ attached_name
             attached_file =  open(fileRoute, 'rb')
-            attached_MIME = MIMEBase('application', 'octet-stream')
+            attached_MIME = MIMEBase('application', 'pdf')#'octet-stream')
             attached_MIME.set_payload((attached_file).read())
 
             encoders.encode_base64(attached_MIME)
@@ -42,19 +44,31 @@ def sendEmails(sender, password, subject, body, route, emails, amount, progbar):
             sesion_smtp.sendmail(sender, email, text)
             i += 1
             progbar['value'] += 100/amount
+            labelProgbar['text'] = 'Enviando...  '+str(progbar['value'])+'%'
         sesion_smtp.quit()
         print("Sesion finalizada")
         messagebox.showinfo(title = 'Correcto', message="Correos enviados satisfactoriamente")
         progbar['value'] = 0
-        progbar.pack_forget
+        progbar.pack_forget()
+        labelProgbar.destroy()
+        button["state"] = "normal"
     except RuntimeError:
         messagebox.showerror(title = 'Error', message ='La cantidad de recibos no coincide con la cantidad de remitentes, verifique los archivos o genere nuevamente los recibos')
         print("Unexpected error:", sys.exc_info()[0])
+        progbar.pack_forget()
+        labelProgbar.destroy()
+        button["state"] = "normal"
     except smtplib.SMTPAuthenticationError:
         messagebox.showerror(title = 'Error', message ='Error de autenticacion, verifique los datos de la cuenta')
         print("Error:", sys.exc_info()[0])
+        progbar.pack_forget()
+        labelProgbar.destroy()
+        button["state"] = "normal"
     except:
         messagebox.showerror(title = 'Error', message ='Error de conceccion')
         print("Unexpected error:", sys.exc_info()[0])
+        progbar.pack_forget()
+        labelProgbar.destroy()
+        button["state"] = "normal"
 
 

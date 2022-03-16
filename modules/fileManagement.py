@@ -1,13 +1,11 @@
 from generatePdf import simple_table
 import openpyxl as xl
-from fpdf import FPDF
 import os
 from getpass import getuser
 from datetime import date
 
 #Día actual
 def createFiles(inputLocation, outputLocation = 'C:Users/'+getuser()+'/desktop/Facturas'):
-  pdf = FPDF()
   today = date.today()
   aux = outputLocation
   # Crea la carpeta contenedora
@@ -63,7 +61,8 @@ def createFiles(inputLocation, outputLocation = 'C:Users/'+getuser()+'/desktop/F
     cells = sheetActive[upperLimit:lowerLimit]
     copy.clear()
     for row in cells:
-        copy.append([cell.value for cell in row])
+        copy.append([cell for cell in row])
+        
     #generar documento nuevo
     rowFinal = (limits[i]-limits[i-1]+1)
     simple_table(outputLocation, header, copy, i, rowFinal)
